@@ -5,12 +5,16 @@ import (
 	"net/http"
 )
 
-var templates *template.Template
+var Templates *template.Template
 
 func LoadTemplates(pattern string) {
-	templates = template.Must(template.ParseGlob(pattern))
+	Templates = template.Must(template.ParseGlob(pattern))
+}
+
+func Load2Templates(template1 template.Template, template2 template.Template){
+	template.ParseFiles()
 }
 
 func ExecuteTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
-	templates.ExecuteTemplate(w, tmpl, data)
+	Templates.ExecuteTemplate(w, tmpl, data)
 }
