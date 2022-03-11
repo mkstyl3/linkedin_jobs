@@ -21,9 +21,6 @@ import (
 func InitWebServer() {
 	sPort := os.Getenv("SERVPORT")
 	utils.LoadTemplates("templates/*.html")
-
-	
-
 	r := routes.NewRouter()
 	http.Handle("/", r)
 	http.ListenAndServe(":"+sPort, nil)
@@ -44,6 +41,8 @@ func main() {
 	}
 	ConfigureLog()
 	models.InitDB()
+	models.Db.AutoMigrate(&models.EnglishLevels{})
+	
 	InitWebServer()
 
 	defer func() {

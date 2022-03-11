@@ -21,3 +21,7 @@ func ConnectToDb() error {
 func InitDB() error {
 	return ConnectToDb()
 }
+
+func GetAll(slices interface{}) error {
+	return Db.Find(slices).Error
+}

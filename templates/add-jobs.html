@@ -1,0 +1,110 @@
+{{ template "header" }}
+{{ template "sidebar" }}
+<main>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4"> <!--ms-sm-auto  -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-left pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Insert new jobs from multiple job-seach websites</h1>
+                </div>
+                <form>
+                    <div class="form-group row">
+                        <div class="col-lg-6 mb-3">  
+                            <label for="input" class="form-label">Company name</label> 
+                            <div class="input-group">
+                                <input type="text" id="company-names" name="input_with_suggestions" class="form-control" placeholder="type" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mb-3">
+                            <label for="companySize" class="form-label">Company size</label>  
+                            <select class="form-select" aria-label="Default select example">
+                                {{ range .CompanySizes }}
+                                <option class="option">{{ .Name }}</option>  
+                                {{ end }} 
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-6 mb-3">
+                            <label for="english" class="form-label">English level</label>  
+                            <select class="form-select" id="english" aria-label="Default select example">
+                                {{ range .EnglishLevels }}
+                                <option class="option">{{ .Level }}</option>  
+                                {{ end }} 
+                            </select>
+                        </div>
+
+                        <div class="col-lg-6 mb-3" >
+                            <label for="companySize" class="form-label">Work schedules</label>  
+                            <select class="form-select" aria-label="Default select example">
+                                {{ range .Schedules }}
+                                <option>{{ .Name }}</option>  
+                                {{ end }} 
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-6 mb-3">
+                            <label for="salary (optative)" class="form-label">Salary</label>
+                            <input type="text" class="form-control" id="salary" placeholder="type">
+                        </div>
+                        <div class="col-lg-6 mb-3">
+                            <label for="experience" class="form-label">Years of experience</label>
+                            <input type="text" class="form-control" id="experience" placeholder="type">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-6 mb-3">
+                            <label for="programmingSkill" class="form-label">Programming Skill</label>
+                            <div class="input-group">
+                                <input type="text" id="programming-skill-names" name="input_with_suggestions" class="form-control me-1" placeholder="type" autocomplete="off">
+                                <button type="button" class="btn btn-primary btn-sm" onclick="onAddNewProgSkillBtnClick()">Add new</button>
+                            </div>
+                        </div>
+                    </div>
+                    <table id="me1">
+                        <thead>
+                            <tr>
+                                <th>Selected</th>
+                            </tr>
+                        </thead>
+                        <tbody id></tbody>
+                    </table>
+                    <script>
+                        const tbodyEl = document.querySelector("tbody");
+                        const tableEl = document.querySelector("table");
+                        function onAddProgrammingSkill(data){
+                            tbodyEl.innerHTML += `
+                                <tr>
+                                    <td>${data}</td>
+                                    <td><button type="button" class="btn btn-danger btn-sm">Delete</button></td>
+                                </tr>
+                            `;
+                        }
+
+                        function onDeleteRow(e) {
+                            if (!e.target.classList.contains("btn")) {
+                                return;
+                            }
+                            const btn = e.target;
+                            btn.closest("tr").remove();
+                        }
+                        tableEl.addEventListener("click", onDeleteRow);
+                    </script>
+                    <script>
+
+                        
+                        function onAddNewProgSkillBtnClick() {
+                            const input = document.getElementById('programming-skill-names').value
+                            onAddProgrammingSkill(input)
+                        }
+                        
+                    </script>
+                    <!-- <button type="button" class="btn btn-primary px-2">Save</button> -->
+                    <!-- <button type="button" class="btn btn-warning">Warning</button> -->
+                </form> 
+            </div>  
+        </div>    
+    </div>        
+</main>
+{{ template "footer"}}
