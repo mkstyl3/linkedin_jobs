@@ -58,11 +58,11 @@
                             <label for="programmingSkill" class="form-label">Programming Skill</label>
                             <div class="input-group">
                                 <input type="text" id="programming-skill-names" name="input_with_suggestions" class="form-control me-1" placeholder="type" autocomplete="off">
-                                <button type="button" class="btn btn-primary btn-sm" onclick="onAddNewProgSkillBtnClick()">Add new</button>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="onAddNewProgSkillBtnClick('programming-skill-names')">Add new</button>
                             </div>
                         </div>
                     </div>
-                    <table id="me1">
+                    <table id="me1" name="tags">
                         <thead>
                             <tr>
                                 <th>Selected</th>
@@ -70,36 +70,10 @@
                         </thead>
                         <tbody id></tbody>
                     </table>
-                    <script>
-                        const tbodyEl = document.querySelector("tbody");
-                        const tableEl = document.querySelector("table");
-                        function onAddProgrammingSkill(data){
-                            tbodyEl.innerHTML += `
-                                <tr>
-                                    <td>${data}</td>
-                                    <td><button type="button" class="btn btn-danger btn-sm">Delete</button></td>
-                                </tr>
-                            `;
-                        }
-
-                        function onDeleteRow(e) {
-                            if (!e.target.classList.contains("btn")) {
-                                return;
-                            }
-                            const btn = e.target;
-                            btn.closest("tr").remove();
-                        }
-                        tableEl.addEventListener("click", onDeleteRow);
-                    </script>
-                    <script>
-
+                     <script>
                         
-                        function onAddNewProgSkillBtnClick() {
-                            const input = document.getElementById('programming-skill-names').value
-                            onAddProgrammingSkill(input)
-                        }
-                        
-                    </script>
+
+                    </script> 
                     <!-- <button type="button" class="btn btn-primary px-2">Save</button> -->
                     <!-- <button type="button" class="btn btn-warning">Warning</button> -->
                 </form> 
