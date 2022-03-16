@@ -4,10 +4,10 @@ This is a personal project developed for learning purposes. Looks for integrate 
 Status: Proof of concept. In Progress...
 
 Intentions: Once the proof of concept is finished, I would like to offer it to the public by:
-	1. Deploying it to an AWS Fargate.
-	2. Refactoring the necessary code for production ready purposes. 
+1. Deploying it to an AWS Fargate.
+2. Refactoring the necessary code for production ready purposes. 
 
-Below useful snippets. 
+Below personal useful snippets for the development process. 
 
 Snipped for create table "users" by migrations and populate with users:
 
