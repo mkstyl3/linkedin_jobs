@@ -11,6 +11,7 @@ import (
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/opts"
 	"github.com/gorilla/mux"
+	"github.com/mkstyl3/linkedin_jobs/helpers"
 	"github.com/mkstyl3/linkedin_jobs/middleware"
 	"github.com/mkstyl3/linkedin_jobs/models"
 	"github.com/mkstyl3/linkedin_jobs/sessions"
@@ -41,19 +42,21 @@ func NewRouter() *mux.Router {
 	r.HandleFunc("/login", loginPostHandler).Methods("POST")
 	r.HandleFunc("/bar", barGetHandler).Methods("GET")
 	r.HandleFunc("/addjobs", addJobsGetHandler).Methods("GET")
-	r.HandleFunc("/addjobs", addJobsPostHandler).Methods("POST")
+	r.HandleFunc("/addjob", addJobPostHandler).Methods("POST")
 	r.HandleFunc("/company-names", CompanyNamesGetHandler).Methods("GET")
 	r.HandleFunc("/programming-skill-names", ProgrammingSkillNamesGetHandler).Methods("GET")
-	fs := http.FileServer(http.Dir("./static/"))
-	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fs))
+	r.HandleFunc("/personal-skill-names", PersonalSkillNamesGetHandler).Methods("GET")
+	r.HandleFunc("/publishers", publishersGetHandler).Methods("GET")
+	fs := http.FileServer(http.Dir("./dist/"))
+	r.PathPrefix("/dist/").Handler(http.StripPrefix("/dist/", fs))
 	return r
 }
 
 func addJobsGetHandler(w http.ResponseWriter, r *http.Request) {
 	type Parcel struct {
-		Chart        template.HTML
-		CompanySizes interface{}
-		Schedules    interface{}
+		Chart         template.HTML
+		CompanySizes  interface{}
+		Schedules     interface{}
 		EnglishLevels interface{}
 	}
 	chartTemplate := CreateBarChart(w)
@@ -92,7 +95,7 @@ func addJobsGetHandler(w http.ResponseWriter, r *http.Request) {
 	log.Info().Msg(fmt.Sprintf("Retrieved companies: %+v", companies))
 
 	// Preload companies
-	englishLevels := []models.EnglishLevels{}
+	englishLevels := []models.EnglishLevel{}
 	err = models.GetAll(&englishLevels)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -107,8 +110,30 @@ func addJobsGetHandler(w http.ResponseWriter, r *http.Request) {
 	utils.ExecuteTemplate(w, "add-jobs.html", parcel)
 }
 
-func addJobsPostHandler(w http.ResponseWriter, r *http.Request) {
+func addJobPostHandler(w http.ResponseWriter, r *http.Request) {
+	log.Info().Msg("Post request of adding a job received, boss")
 
+	// log.Info().Msg(r.Body)
+	var j models.Job
+
+	err := helpers.DecodeJSONBody(w, r, &j)
+	if err != nil {
+		var mr *helpers.MalformedRequest
+		if errors.As(err, &mr) {
+			// http.Error(w, mr.Msg, mr.Status)
+		} else {
+			log.Error().Err(err).Msg("")
+			// http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+
+		}
+		return
+	}
+
+	log.Info().Msgf("job: %+v", j)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"result":"job position added, thanks"}`))
 }
 
 func barGetHandler(w http.ResponseWriter, r *http.Request) {
@@ -146,10 +171,38 @@ func GetListOfMatchedWords(firstLetters string, allWords []string) []string {
 	return result
 }
 
+func PersonalSkillNamesGetHandler(w http.ResponseWriter, r *http.Request) {
+	all_models := []models.PersonalSkill{}
+	models.GetAll(&all_models)
+	bytes, err := json.Marshal(all_models)
+
+	if err != nil {
+		log.Error().Msg("Error Marshaling list")
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(bytes)
+	}
+}
+
 func ProgrammingSkillNamesGetHandler(w http.ResponseWriter, r *http.Request) {
-	all_models_ := []models.ProgrammingSkill{}
-	models.GetAll(&all_models_)
-	bytes, err := json.Marshal(all_models_)
+	all_models := []models.ProgrammingSkill{}
+	models.GetAll(&all_models)
+	bytes, err := json.Marshal(all_models)
+
+	if err != nil {
+		log.Error().Msg("Error Marshaling list")
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(bytes)
+	}
+}
+
+func publishersGetHandler(w http.ResponseWriter, r *http.Request) {
+	all_models := []models.Publisher{}
+	models.GetAll(&all_models)
+	bytes, err := json.Marshal(all_models)
 
 	if err != nil {
 		log.Error().Msg("Error Marshaling list")
@@ -361,7 +414,7 @@ func indexGetHandler(w http.ResponseWriter, r *http.Request) {
 
 	// create User table
 
-	// t, err := template.ParseFiles("static/index.html")
+	// t, err := template.ParseFiles("dist/index.html")
 	// if err != nil {
 	// 	return
 	// }

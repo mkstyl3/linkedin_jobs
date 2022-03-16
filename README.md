@@ -1,10 +1,15 @@
 # README
+This is a personal project developed for learning purposes. Looks for integrate and display job positions offered by other job-seach websites in a more friendly way through graphical charts-
 
-For create table "users" by migrations and populate with users:
+Status: Proof of concept.
+
+Below useful snippets. 
+
+Snipped for create table "users" by migrations and populate with users:
 
 ```go
 cost := bcrypt.DefaultCost
-password := "lamarc"
+password := "t43f34ffb78j89"
 hash, err := bcrypt.GenerateFromPassword([]byte(password), cost)
 if err != nil {
     log.Fatal().Err(err).Str("service", "encrypt_service").Msgf("Cannot encrypt pw")

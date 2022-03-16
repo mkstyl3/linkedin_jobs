@@ -1,7 +1,9 @@
 package sessions
 
 import (
+	"os"
+
 	"github.com/gorilla/sessions"
 )
 
-var Store = sessions.NewCookieStore([]byte("t0p-s3cr3t"))
+var Store = sessions.NewCookieStore([]byte(os.Getenv("AUTH_KEY")))

@@ -12,10 +12,4 @@ type Company struct {
 	Size        CompanySize `gorm:"foreignKey:SizeReferer"`
 }
 
-// func GetCompanySizes() ([]CompanySize, error) {
-// 	companySizes := []CompanySize{}
-// 	result := Db.Find(&companySizes)
-// 	return companySizes, result.Error
-// }
-
 

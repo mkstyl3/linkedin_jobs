@@ -6,7 +6,6 @@ package main
 
 // the net/http and os packages are imported into the file
 import (
-	"fmt"
 	"net/http"
 	"os"
 
@@ -41,13 +40,13 @@ func main() {
 	}
 	ConfigureLog()
 	models.InitDB()
-	models.Db.AutoMigrate(&models.EnglishLevels{})
-	
+	models.Db.AutoMigrate(&models.Job{})
+
 	InitWebServer()
 
-	defer func() {
-		if error := recover(); error != nil {
-			fmt.Println("Error:", error)
-		}
-	}()
+	// defer func() {
+	// 	if error := recover(); error != nil {
+	// 		fmt.Println("Error:", error)
+	// 	}
+	// }()
 }
