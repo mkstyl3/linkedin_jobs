@@ -1,5 +1,5 @@
 # README
-This is a personal project developed for learning purposes. Looks for integrate and display job positions offered by other job-seach websites in a more friendly way through graphical charts-
+This is a personal project developed for learning purposes. Looks for integrate and display job positions offered by other job-search websites in a more friendly way through graphical charts.
 
 Status: Proof of concept. In Progress...
 
