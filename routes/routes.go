@@ -20,12 +20,6 @@ import (
 	"gorm.io/gorm"
 )
 
-var companies []models.Company
-
-func clearPreloadedCompanies() {
-	companies = nil
-}
-
 func generateBarItems() []opts.BarData {
 	items := make([]opts.BarData, 0)
 	for i := 0; i < 7; i++ {
@@ -34,24 +28,37 @@ func generateBarItems() []opts.BarData {
 	return items
 }
 
+func preloadFormData(data interface{}) {
+	err := models.GetAll(data)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Info().Err(err).Msg(fmt.Sprint("No models found"))
+		} else {
+			log.Fatal().Err(err).Msg(fmt.Sprint("Error retrieving all models"))
+		}
+	}
+	log.Info().Msg(fmt.Sprintf("Retrieved models: %+v", data))
+}
+
 func NewRouter() *mux.Router {
 	r := mux.NewRouter()
 	r.HandleFunc("/", middleware.AuthRequired(indexGetHandler)).Methods("GET")
 	r.HandleFunc("/", middleware.AuthRequired(indexPostHandler)).Methods("POST")
-	r.HandleFunc("/login", loginGetHandler).Methods("GET")
-	r.HandleFunc("/login", loginPostHandler).Methods("POST")
-	r.HandleFunc("/bar", barGetHandler).Methods("GET")
 	r.HandleFunc("/addjobs", addJobsGetHandler).Methods("GET")
 	r.HandleFunc("/addjob", addJobPostHandler).Methods("POST")
-	r.HandleFunc("/company-names", CompanyNamesGetHandler).Methods("GET")
-	r.HandleFunc("/programming-skill-names", ProgrammingSkillNamesGetHandler).Methods("GET")
-	r.HandleFunc("/personal-skill-names", PersonalSkillNamesGetHandler).Methods("GET")
+	r.HandleFunc("/bar", barGetHandler).Methods("GET")
+	r.HandleFunc("/company-names", companyNamesGetHandler).Methods("GET")
+	r.HandleFunc("/login", loginGetHandler).Methods("GET")
+	r.HandleFunc("/login", loginPostHandler).Methods("POST")
+	r.HandleFunc("/personal-skill-names", personalSkillNamesGetHandler).Methods("GET")
+	r.HandleFunc("/programming-skill-names", programmingSkillNamesGetHandler).Methods("GET")
 	r.HandleFunc("/publishers", publishersGetHandler).Methods("GET")
 	fs := http.FileServer(http.Dir("./dist/"))
 	r.PathPrefix("/dist/").Handler(http.StripPrefix("/dist/", fs))
 	return r
 }
 
+// Handlers alphabetically sorted
 func addJobsGetHandler(w http.ResponseWriter, r *http.Request) {
 	type Parcel struct {
 		Chart         template.HTML
@@ -59,63 +66,23 @@ func addJobsGetHandler(w http.ResponseWriter, r *http.Request) {
 		Schedules     interface{}
 		EnglishLevels interface{}
 	}
-	chartTemplate := CreateBarChart(w)
-	// A Database call here
+	chartTemplate := createBarChart(w)
+	// Preload company sizes
 	sizes := []models.CompanySize{}
-	err := models.GetAll(&sizes)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			log.Info().Err(err).Msg(fmt.Sprint("No company sizes found"))
-		} else {
-			log.Fatal().Err(err).Msg(fmt.Sprint("Error retrieving all company sizes"))
-		}
-	}
-	log.Info().Msg(fmt.Sprintf("Retrieved companies: %+v", sizes))
+	preloadFormData(&sizes)
+	// Preload job schedules
 	schedules := []models.Schedules{}
-	err = models.GetAll(&schedules)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			log.Info().Err(err).Msg(fmt.Sprint("No schedules found"))
-		} else {
-			log.Fatal().Err(err).Msg(fmt.Sprint("Error retrieving all schedules"))
-		}
-	}
-	log.Info().Msg(fmt.Sprintf("Retrieved schedules: %+v", schedules))
-
-	// Preload companies
-	companies := []models.Company{}
-	err = models.GetAll(&companies)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			log.Info().Err(err).Msg(fmt.Sprint("No companies found"))
-		} else {
-			log.Fatal().Err(err).Msg(fmt.Sprint("Error retrieving all companies"))
-		}
-	}
-	log.Info().Msg(fmt.Sprintf("Retrieved companies: %+v", companies))
-
-	// Preload companies
+	preloadFormData(&schedules)
+	// Preload english_levels
 	englishLevels := []models.EnglishLevel{}
-	err = models.GetAll(&englishLevels)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			log.Info().Err(err).Msg(fmt.Sprint("No english levels found"))
-		} else {
-			log.Fatal().Err(err).Msg(fmt.Sprint("Error retrieving all english levels"))
-		}
-	}
-	log.Info().Msg(fmt.Sprintf("Retrieved english levels: %+v", companies))
+	preloadFormData(&englishLevels)
 
 	parcel := Parcel{Chart: chartTemplate, CompanySizes: sizes, Schedules: schedules, EnglishLevels: englishLevels}
 	utils.ExecuteTemplate(w, "add-jobs.html", parcel)
 }
 
 func addJobPostHandler(w http.ResponseWriter, r *http.Request) {
-	log.Info().Msg("Post request of adding a job received, boss")
-
-	// log.Info().Msg(r.Body)
 	var j models.Job
-
 	err := helpers.DecodeJSONBody(w, r, &j)
 	if err != nil {
 		var mr *helpers.MalformedRequest
@@ -128,9 +95,7 @@ func addJobPostHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-
 	log.Info().Msgf("job: %+v", j)
-
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"result":"job position added, thanks"}`))
@@ -159,61 +124,7 @@ func barGetHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func GetListOfMatchedWords(firstLetters string, allWords []string) []string {
-	var result []string
-	for _, word := range allWords {
-		if lenFirstLetters := len(firstLetters); len(word) >= lenFirstLetters {
-			if word[0:lenFirstLetters] == firstLetters {
-				result = append(result, word)
-			}
-		}
-	}
-	return result
-}
-
-func PersonalSkillNamesGetHandler(w http.ResponseWriter, r *http.Request) {
-	all_models := []models.PersonalSkill{}
-	models.GetAll(&all_models)
-	bytes, err := json.Marshal(all_models)
-
-	if err != nil {
-		log.Error().Msg("Error Marshaling list")
-	} else {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write(bytes)
-	}
-}
-
-func ProgrammingSkillNamesGetHandler(w http.ResponseWriter, r *http.Request) {
-	all_models := []models.ProgrammingSkill{}
-	models.GetAll(&all_models)
-	bytes, err := json.Marshal(all_models)
-
-	if err != nil {
-		log.Error().Msg("Error Marshaling list")
-	} else {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write(bytes)
-	}
-}
-
-func publishersGetHandler(w http.ResponseWriter, r *http.Request) {
-	all_models := []models.Publisher{}
-	models.GetAll(&all_models)
-	bytes, err := json.Marshal(all_models)
-
-	if err != nil {
-		log.Error().Msg("Error Marshaling list")
-	} else {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write(bytes)
-	}
-}
-
-func CompanyNamesGetHandler(w http.ResponseWriter, r *http.Request) {
+func companyNamesGetHandler(w http.ResponseWriter, r *http.Request) {
 	companies := []models.Company{}
 	models.GetAll(&companies)
 	// var company_names []string
@@ -229,163 +140,9 @@ func CompanyNamesGetHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write(bytes)
 	}
-
-	// id := r.URL.Query().Get("name")
-	// log.Info().Msg(id)
-
-	// type Bird struct {
-	// 	Species     string
-	// 	Description string
-	// }
-
-	// log.Info().Msg(fmt.Sprintf("Retrieved companies: %+v", companies))
-	// u := person{Name: "Shashank", LastName: "Tiwari", Age: 30}
-	// jsonResponse, jsonError := json.Marshal(u)
-	// if jsonError != nil {
-	// 	fmt.Println("Unable to encode JSON")
-	// }
-
-	// fmt.Println(string(jsonResponse))
-
-	// w.Header().Set("Content-Type", "application/json")
-	// w.WriteHeader(http.StatusOK)
-
-	// birdJson := `[{"species":"pigeon","decription":"likes to perch on rocks"},{"species":"eagle","description":"bird of prey"}]`
-	// // exam := `["aguacate", "bertoromero"]`
-	// tmp := `[
-	// "3Com Corp",
-	// "3M Company",
-	// "A.G. Edwards Inc",
-	// "Aöbott Laboratories",
-	// "Abercrombie & Fitch Co",
-	// "ABM Industries Incorporated",
-	// "Ace Hardware Corporation",
-	// "ACT Manufacturing Inc",
-	// "Acterna Corp",
-	// "Adams Resources & Energy, Inc",
-	// "ADC Telecommunications, Inc",
-	// "Adelphia Communications Corporation",
-	// "Administaff, Inc",
-	// "Adobe Systems Incorporated",
-	// "Adolph Coors Company",
-	// "Advance Auto Parts, Inc",
-	// "Advanced Micro Devices, Inc",
-	// "AdvancePCS, Inc",
-	// "Advantica Restaurant Group, Inc",
-	// "The AES Corporation",
-	// "Aetna Inc",
-	// "Affiliated Computer Services, Inc",
-	// "AFLAC Incorporated",
-	// "AGCO Corporation",
-	// "Agilent Technologies, Inc",
-	// "Agway Inc",
-	// "Apartment Investment and Management Company",
-	// "Air Products and Chemicals, Inc",
-	// "Airborne, Inc",
-	// "Airgas, Inc",
-	// "AK Steel Holding Corporation",
-	// "Alaska Air Group, Inc",
-	// "Alberto-Culver Company",
-	// "Albertsons, Inc",
-	// "Alcoa Inc",
-	// "Alleghany Corporation",
-	// "Allegheny Energy, Inc",
-	// "Allegheny Technologies Incorporated",
-	// "Allergan, Inc",
-	// "ALLETE, Inc",
-	// "Alliant Energy Corporation",
-	// "Allied Waste Industries, Inc",
-	// "Allmerica Financial Corporation",
-	// "The Allstate Corporation",
-	// "ALLTEL Corporation",
-	// "The Alpine Group, Inc",
-	// "Amazon.com, Inc",
-	// "AMC Entertainment Inc",
-	// "American Power Conversion Corporation",
-	// "Amerada Hess Corporation",
-	// "AMERCO",
-	// "Ameren Corporation",
-	// "America West Holdings Corporation",
-	// "American Axle & Manufacturing Holdings, Inc",
-	// "American Eagle Outfitters, Inc",
-	// "American Electric Power Company, Inc",
-	// "American Express Company",
-	// "American Financial Group, Inc",
-	// "American Greetings Corporation",
-	// "American International Group, Inc",
-	// "American Standard Companies Inc",
-	// "American Water Works Company, Inc",
-	// "AmerisourceBergen Corporation",
-	// "Ames Department Stores, Inc",
-	// "Amgen Inc",
-	// "Amkor Technology, Inc",
-	// "AMR Corporation",
-	// "AmSouth Bancorp",
-	// "Amtran, Inc",
-	// "Anadarko Petroleum Corporation",
-	// "Analog Devices, Inc",
-	// "Anheuser-Busch Companies, Inc",
-	// "Anixter International Inc",
-	// "AnnTaylor Inc",
-	// "Anthem, Inc",
-	// "AOL Time Warner Inc",
-	// "Aon Corporation",
-	// "Apache Corporation",
-	// "Apple Computer, Inc",
-	// "Applera Corporation",
-	// "Applied Industrial Technologies, Inc",
-	// "Applied Materials, Inc",
-	// "Aquila, Inc",
-	// "ARAMARK Corporation",
-	// "Arch Coal, Inc",
-	// "Archer Daniels Midland Company",
-	// "Arkansas Best Corporation",
-	// "Armstrong Holdings, Inc",
-	// "Arrow Electronics, Inc",
-	// "ArvinMeritor, Inc",
-	// "Ashland Inc",
-	// "Astoria Financial Corporation",
-	// "AT&T Corp",
-	// "Atmel Corporation",
-	// "Atmos Energy Corporation",
-	// "Audiovox Corporation",
-	// "Autoliv, Inc",
-	// "Automatic Data Processing, Inc",
-	// "AutoNation, Inc",
-	// "AutoZone, Inc",
-	// "Avaya Inc",
-	// "Avery Dennison Corporation",
-	// "Avista Corporation",
-	// "Avnet, Inc",
-	// "Avon Products, Inc",
-	// "Baker Hughes Incorporated",
-	// "Ball Corporation",
-	// "Bank of America Corporation",
-	// "The Bank of New York Company, Inc",
-	// "Bank One Corporation",
-	// "Banknorth Group, Inc",
-	// "Banta Corporation",
-	// "Barnes & Noble, Inc",
-	// "Bausch & Lomb Incorporated",
-	// "Baxter International Inc",
-	// "BB&T Corporation",
-	// "The Bear Stearns Companies Inc",
-	// "Beazer Homes USA, Inc",
-	// "Beckman Coulter, Inc"]`
-
-	// var birds []Bird
-	// json.Unmarshal([]byte(birdJson), &birds)
-	// fmt.Printf("Birds : %+v", birds)
-
-	// w.Write([]byte(tmp))
-
-	// sliceExample := []string{"hello", "arroba"}
-	// matched_words := routes.GetListOfMatchedWords("a", sliceExample)
-	// log.Info().Msg(fmt.Sprintf("Retrieved schedules: %+v", matched_words))
-
 }
 
-func CreateBarChart(w http.ResponseWriter) template.HTML {
+func createBarChart(w http.ResponseWriter) template.HTML {
 	// create a new bar instance
 	bar := charts.NewBar()
 	// set some global options like Title/Legend/ToolTip or anything else
@@ -475,4 +232,46 @@ func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 	session.Values["username"] = username
 	session.Save(r, w)
 	http.Redirect(w, r, "/", 302)
+}
+
+func personalSkillNamesGetHandler(w http.ResponseWriter, r *http.Request) {
+	all_models := []models.PersonalSkill{}
+	models.GetAll(&all_models)
+	bytes, err := json.Marshal(all_models)
+
+	if err != nil {
+		log.Error().Msg("Error Marshaling list")
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(bytes)
+	}
+}
+
+func programmingSkillNamesGetHandler(w http.ResponseWriter, r *http.Request) {
+	all_models := []models.ProgrammingSkill{}
+	models.GetAll(&all_models)
+	bytes, err := json.Marshal(all_models)
+
+	if err != nil {
+		log.Error().Msg("Error Marshaling list")
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(bytes)
+	}
+}
+
+func publishersGetHandler(w http.ResponseWriter, r *http.Request) {
+	all_models := []models.Publisher{}
+	models.GetAll(&all_models)
+	bytes, err := json.Marshal(all_models)
+
+	if err != nil {
+		log.Error().Msg("Error Marshaling list")
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(bytes)
+	}
 }

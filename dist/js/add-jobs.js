@@ -9,7 +9,7 @@ function getTableValuesById(table_id){
 
 function onAddJob() {
     programming_skills = getTableValuesById("programming-skill-table")
-    if (!programming_skills) {
+    if (programming_skills.length === 0) {
         alert("Include a programming skill... it wouldn't be a legal job position or something like that, right? hehe");
         return
     }
@@ -26,31 +26,31 @@ function onAddJob() {
     salary = document.getElementById("salary").value
     years_of_xp = document.getElementById("experience").value
     personal_skills = getTableValuesById("personal-skill-table")
-    output = {
-        "Title" : title,
-        "Description": description,
-        "Publisher" : publishers,
-        "Link": link,
-        "PublishedAt": publishedAt,
-        "FinishedAt": finishedAt,
-        "Company" : {
-            "Name" : "",
-            "Size" : {
+    // output = {
+    //     "Title" : title,
+    //     "Description": description,
+    //     "Publisher" : publishers,
+    //     "Link": link,
+    //     "PublishedAt": publishedAt,
+    //     "FinishedAt": finishedAt,
+    //     "Company" : {
+    //         "Name" : "",
+    //         "Size" : {
                 
-            }
-        }
-        "company_size" : company_size,
-        "english_lvl" : english_lvl,
-        "work_schedules": work_schedules,
-        "salary": salary,
-        "years_of_xp": years_of_xp,
-        "programming_skills": JSON.stringify(programming_skills),
-        "personal_skills": JSON.stringify(personal_skills),
-    };
+    //         }
+    //     }
+    //     "company_size" : company_size,
+    //     "english_lvl" : english_lvl,
+    //     "work_schedules": work_schedules,
+    //     "salary": salary,
+    //     "years_of_xp": years_of_xp,
+    //     "programming_skills": JSON.stringify(programming_skills),
+    //     "personal_skills": JSON.stringify(personal_skills),
+    // };
     // Send POST request to server
-    fetch("http://localhost:3000/addjob", {method: "POST", body: output})
-        .then(results => results.json())
-        .then(console.log);
+    // fetch("http://localhost:3000/addjob", {method: "POST", body: output})
+    //     .then(results => results.json())
+    //     .then(console.log);
 
 }
 
@@ -220,4 +220,4 @@ if(month < 10)
 if(day < 10)
     day = '0' + day.toString();
 var maxDate = year + '-' + month + '-' + day;
-document.getElementById("publishedOn").setAttribute("max", maxDate);
+document.getElementById("publishedAt").setAttribute("max", maxDate);
