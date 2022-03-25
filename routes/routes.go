@@ -11,7 +11,6 @@ import (
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/opts"
 	"github.com/gorilla/mux"
-	"github.com/mkstyl3/linkedin_jobs/helpers"
 	"github.com/mkstyl3/linkedin_jobs/middleware"
 	"github.com/mkstyl3/linkedin_jobs/models"
 	"github.com/mkstyl3/linkedin_jobs/sessions"
@@ -44,10 +43,10 @@ func NewRouter() *mux.Router {
 	r := mux.NewRouter()
 	r.HandleFunc("/", middleware.AuthRequired(indexGetHandler)).Methods("GET")
 	r.HandleFunc("/", middleware.AuthRequired(indexPostHandler)).Methods("POST")
-	r.HandleFunc("/addjobs", addJobsGetHandler).Methods("GET")
+	r.HandleFunc("/add-job", addJobsGetHandler).Methods("GET")
 	r.HandleFunc("/addjob", addJobPostHandler).Methods("POST")
 	r.HandleFunc("/bar", barGetHandler).Methods("GET")
-	r.HandleFunc("/company-names", companyNamesGetHandler).Methods("GET")
+	r.HandleFunc("/companies", companyNamesGetHandler).Methods("GET")
 	r.HandleFunc("/login", loginGetHandler).Methods("GET")
 	r.HandleFunc("/login", loginPostHandler).Methods("POST")
 	r.HandleFunc("/personal-skill-names", personalSkillNamesGetHandler).Methods("GET")
@@ -56,49 +55,6 @@ func NewRouter() *mux.Router {
 	fs := http.FileServer(http.Dir("./dist/"))
 	r.PathPrefix("/dist/").Handler(http.StripPrefix("/dist/", fs))
 	return r
-}
-
-// Handlers alphabetically sorted
-func addJobsGetHandler(w http.ResponseWriter, r *http.Request) {
-	type Parcel struct {
-		Chart         template.HTML
-		CompanySizes  interface{}
-		Schedules     interface{}
-		EnglishLevels interface{}
-	}
-	chartTemplate := createBarChart(w)
-	// Preload company sizes
-	sizes := []models.CompanySize{}
-	preloadFormData(&sizes)
-	// Preload job schedules
-	schedules := []models.Schedules{}
-	preloadFormData(&schedules)
-	// Preload english_levels
-	englishLevels := []models.EnglishLevel{}
-	preloadFormData(&englishLevels)
-
-	parcel := Parcel{Chart: chartTemplate, CompanySizes: sizes, Schedules: schedules, EnglishLevels: englishLevels}
-	utils.ExecuteTemplate(w, "add-jobs.html", parcel)
-}
-
-func addJobPostHandler(w http.ResponseWriter, r *http.Request) {
-	var j models.Job
-	err := helpers.DecodeJSONBody(w, r, &j)
-	if err != nil {
-		var mr *helpers.MalformedRequest
-		if errors.As(err, &mr) {
-			// http.Error(w, mr.Msg, mr.Status)
-		} else {
-			log.Error().Err(err).Msg("")
-			// http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-
-		}
-		return
-	}
-	log.Info().Msgf("job: %+v", j)
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"result":"job position added, thanks"}`))
 }
 
 func barGetHandler(w http.ResponseWriter, r *http.Request) {

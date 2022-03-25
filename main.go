@@ -40,7 +40,7 @@ func main() {
 	}
 	ConfigureLog()
 	models.InitDB()
-	models.Db.AutoMigrate(&models.Job{})
+	// models.Db.AutoMigrate(&models.Job{})
 
 	InitWebServer()
 

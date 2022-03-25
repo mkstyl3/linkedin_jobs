@@ -1,13 +1,13 @@
 {{ template "header" }}
 {{ template "sidebar" }}
 <main>
-    <form>
+    <form method="post" onsubmit="onAddJob()" novalidate>
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4"> <!--ms-sm-auto  -->
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-left pt-3 pb-2 mb-3 border-bottom">
                         <h1 class="h2">Add jobs from your favorite job-seach website</h1>
-                        <button type="button" onclick="onAddJob()" class="btn btn-primary">Add Job</button>
+                        <button type="input" class="btn btn-primary">Add Job</button>
                     </div>
                     
                     <div class="form-group row">
@@ -18,7 +18,7 @@
                         <div class="col-lg-6 mb-3">
                             <label for="publishers" class="form-label">Publisher*</label> 
                             <div class="input-group">
-                                <input required type="text" id="publishers" class="form-control" placeholder="type for suggestions" autocomplete="off">
+                                <input required type="text" data-id="0" id="publishers" class="form-control" pattern="[A-Za-z0-9].{2,}" placeholder="type for suggestions" autocomplete="off">
                             </div>
                         </div>
                     </div>
@@ -35,29 +35,33 @@
                     <div class="form-group row">
                         <div class="col-lg-6 mb-3">  
                             <label for="publishedAt" class="form-label">Published on*</label>
-                            <input id="publishedAt" class="form-control" type="date" />
+                            <input required id="publishedAt" class="form-control" type="date" />
                         </div>
                         <div class="col-lg-6 mb-3">
                             <!-- <label for="finished" class="form-label">Is the job offer finished?</label> -->
                             <label class="form-check-label mb-3" for="">Is the job position currently open?</label>
-                            <div>
-                                <input class="form-check-input" type="checkbox" value="" id="finishedAt" checked>
-                                <label class="form-check-label" for="finishedAt">Yes</label>
+                            <div style="display: inline; margin-left: 10px;">
+                                <input class="form-check-input" type="checkbox" id="finished" onchange="finishedValueChanged('div1')"  checked>
+                                <label class="form-check-label" for="finished">Yes</label>
+                            </div>
+                            <div class="col-lg-6 mb-3" id="div1" style="display:none">  
+                                <label for="finishedAt" class="form-label">Finished on*</label>
+                                <input id="finishedAt" class="form-control" type="date" />
                             </div>
                         </div>
                     </div>
                     <div class="form-group row">
                         <div class="col-lg-6 mb-3">  
-                            <label for="company-names" class="form-label">Company name</label> 
+                            <label for="companies" class="form-label">Company name</label> 
                             <div class="input-group">
-                                <input required type="text" id="company-names" pattern="[A-Za-z0-9].{2,}" name="input_with_suggestions" class="form-control" placeholder="type for suggestions" autocomplete="off">
+                                <input required type="text" data-id="0" id="companies" pattern="[A-Za-z0-9].{2,}" name="input_with_suggestions" class="form-control" placeholder="type for suggestions" autocomplete="off">
                             </div>
                         </div>
                         <div class="col-lg-6 mb-3">
                             <label for="company-sizes" class="form-label">Company size</label>  
                             <select class="form-select" id="company-sizes" aria-label="Default select example">
                                 {{ range .CompanySizes }}
-                                <option class="option">{{ .Name }}</option>  
+                                <option class="option" data-id="{{ .ID }}">{{ .Name }}</option>  
                                 {{ end }} 
                             </select>
                         </div>
@@ -67,7 +71,7 @@
                             <label for="english-levels" class="form-label">English level</label>  
                             <select class="form-select" id="english-levels" aria-label="Default select example">
                                 {{ range .EnglishLevels }}
-                                <option class="option">{{ .Level }}</option>  
+                                <option class="option" data-id="{{ .ID }}">{{ .Level }}</option>  
                                 {{ end }} 
                             </select>
                         </div>
@@ -76,7 +80,7 @@
                             <label for="schedules" class="form-label">Work schedules</label>  
                             <select class="form-select" id="schedules"aria-label="Default select example">
                                 {{ range .Schedules }}
-                                <option>{{ .Name }}</option>  
+                                <option class="option" data-id="{{ .ID }}">{{ .Name }}</option>  
                                 {{ end }} 
                             </select>
                         </div>

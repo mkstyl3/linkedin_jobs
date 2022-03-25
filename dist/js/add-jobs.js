@@ -1,57 +1,145 @@
 function getTableValuesById(table_id){
     table = document.getElementById(table_id)
-    values = []
-    for(i=1; i<table.rows.length; i++){
-        values.push(table.rows[i].cells[0].innerHTML)
+    let output = [];
+    for(let i = 1; i < table.rows.length; i++) {
+        tmp = {"ID" : parseInt(table.rows[i].cells[2].innerHTML), "Name" : table.rows[i].cells[0].innerHTML};
+        output.push(tmp);
     }
-    return values
+    return output;
+}
+
+function getInputDataAttrFromElemId(elem_id){
+    elem = document.getElementById(elem_id)
+    return [elem.value, elem.dataset.id]
+}
+
+function getDropDownDataAttrFromElemId(elem_id){
+    elem = document.getElementById(elem_id)
+    return [elem.value, elem.options[elem.selectedIndex].dataset.id]
 }
 
 function onAddJob() {
-    programming_skills = getTableValuesById("programming-skill-table")
-    if (programming_skills.length === 0) {
-        alert("Include a programming skill... it wouldn't be a legal job position or something like that, right? hehe");
-        return
-    }
-    title = document.getElementById("title").value
-    publishers = document.getElementById("publishers").value
-    description = document.getElementById("description").value
-    link = document.getElementById("link").value
-    publishedAt = document.getElementById("publishedAt").value
-    finishedAt = document.getElementById("finishedAt").value
-    company_name = document.getElementById("company-names").value
-    company_size = document.getElementById("company-sizes").value
-    english_lvl = document.getElementById("english-levels").value
-    work_schedules = document.getElementById("schedules").value
-    salary = document.getElementById("salary").value
-    years_of_xp = document.getElementById("experience").value
-    personal_skills = getTableValuesById("personal-skill-table")
-    // output = {
-    //     "Title" : title,
-    //     "Description": description,
-    //     "Publisher" : publishers,
-    //     "Link": link,
-    //     "PublishedAt": publishedAt,
-    //     "FinishedAt": finishedAt,
-    //     "Company" : {
-    //         "Name" : "",
-    //         "Size" : {
-                
-    //         }
-    //     }
-    //     "company_size" : company_size,
-    //     "english_lvl" : english_lvl,
-    //     "work_schedules": work_schedules,
-    //     "salary": salary,
-    //     "years_of_xp": years_of_xp,
-    //     "programming_skills": JSON.stringify(programming_skills),
-    //     "personal_skills": JSON.stringify(personal_skills),
-    // };
-    // Send POST request to server
-    // fetch("http://localhost:3000/addjob", {method: "POST", body: output})
-    //     .then(results => results.json())
-    //     .then(console.log);
+    // programming_skills = getTableValuesById("programming-skill-table")
+    // // if (programming_skills.length === 0) {
+    // //     alert("Include a programming skill... it wouldn't be a legal job position or something like that, right? hehe");
+    // //     return
+    // // }
+    // title = document.getElementById("title").value
+    // description = document.getElementById("description").value
+    // link = document.getElementById("link").value
+    // publishedAt = new Date(document.getElementById("publishedAt").value).toISOString()
+    // finished = document.getElementById("finished").value
+    // let [company_name, company_id] = getInputDataAttrFromElemId("companies")
+    // let [publisher_name, publisher_id] = getInputDataAttrFromElemId("publishers")
+    // let [company_size, company_size_id] = getDropDownDataAttrFromElemId("company-sizes")
+    // let [english_lvl, english_lvl_id] = getDropDownDataAttrFromElemId("english-levels")
+    // let [work_schedule, work_schedule_id] = getDropDownDataAttrFromElemId("schedules")
+    // years_of_xp = document.getElementById("experience").value
+    // salary = document.getElementById("salary").value
+    // personal_skills = getTableValuesById("personal-skill-table")
 
+    // output = {
+    //     Title : title,
+    //     Description: description,
+    //     PublisherReferer : parseInt(publisher_id),
+    //     Publisher: {
+    //         ID: parseInt(publisher_id),
+    //         Name: publisher_name
+    //     },
+    //     Link: link,
+    //     CompanyReferer: parseInt(company_id),
+    //     Company: {
+    //         ID: parseInt(company_id),
+    //         Name: company_name,
+    //         SizeReferer: parseInt(company_size_id),
+    //         Size: {
+    //             ID: parseInt(company_size_id),
+    //             Name: company_size
+    //         }
+    //     },
+    //     PublishedAt: publishedAt,
+    //     EnglishLevelReferer : parseInt(english_lvl_id),
+    //     EnglishLevel: {
+    //         ID: parseInt(english_lvl_id),
+    //         Level: english_lvl
+    //     },
+    //     Experience: parseInt(years_of_xp),
+    //     SchedulesReferer: parseInt(work_schedule_id),
+    //     Schedules: {
+    //         ID: parseInt(work_schedule_id),
+    //         Name: work_schedule
+    //     },
+    //     ProgrammingSkills: programming_skills,
+    //     PersonalSkills: personal_skills,
+    //     Salary: parseInt(salary)
+    // };
+
+    output = {
+        Title : "title",
+        Description: "description",
+        PublisherReferer : 2,
+        Publisher: {
+            ID: 2,
+            Name: "InfoJobs"
+        },
+        Link: "link",
+        CompanyReferer: 1,
+        Company: {
+            ID: 1,
+            Name: "CloudBlue",
+            SizeReferer: 1,
+            Size: {
+                ID: 1,
+                Name: "Micro"
+            }
+        },
+        PublishedAt: "2022-03-02T00:00:00.000Z",
+        EnglishLevelReferer : 6,
+        EnglishLevel: {
+            ID: 6,
+            Level: "Beginner"
+        },
+        Experience: 6,
+        SchedulesReferer: 1,
+        Schedules: {
+            ID: 1,
+            Name: "Part-time"
+        },
+        ProgrammingSkills: [
+            {
+                ID: 11,
+                Name: "JAVADOC"
+            },
+            {
+                ID: 12,
+                Name: "NodeJS"
+            }],
+        PersonalSkills: [
+            {
+                ID: 1,
+                Name: "Responsibility"
+            },
+            {
+                ID: 2,
+                Name: "Attention to detail"
+            }],
+        Salary: 9000
+    };
+
+    if (!document.getElementById("finished").checked) {
+        output.FinishedAt = new Date(document.getElementById("finishedAt").value).toISOString()
+    }
+    
+    //Send POST request to server
+    fetch("http://localhost:3000/addjob", {
+        method: "POST",
+        body: JSON.stringify(output),
+        headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(results => results.json())
+        .then(console.log);
 }
 
 var tables = document.getElementsByTagName("table")
@@ -60,20 +148,21 @@ for(i = 0; i < document.getElementsByName("tags").length; i++){
     tables[i].addEventListener("click", onDeleteRow);
 }
 
-function addRow(table, value){
+function addRow(table, id, value){
     // find the way ive got the element, now lets find a subtag 
     tbody = table.getElementsByTagName("tbody")[0];
     tbody.innerHTML += `
         <tr>
             <td>${value}</td>
             <td><button type="button" class="btn btn-danger btn-sm">Delete</button></td>
+            <td>${id}</td>
         </tr>
     `;
 }
 
 function onAddNewProgSkillBtnClick(input_id, table_id) {
-    input = document.getElementById(input_id).value
-    if(input) addRow(document.getElementById(table_id), input)
+    value = document.getElementById(input_id).value
+    if(value) addRow(document.getElementById(table_id), 0, value)
 }
     
 function onDeleteRow(e) {
@@ -84,97 +173,6 @@ function onDeleteRow(e) {
     btn.closest("tr").remove();
 }
 
-// Retrieving company names
-let field = document.getElementById('company-names');
-let ac = new Autocomplete(field, {
-    maximumItems: 50,
-    threshold: 1,
-    onSelectItem: ({label, value}) => {
-        console.log("user selected:", label, value);
-    }
-});
-
-let api = "http://localhost:3000/" + field.id
-
-new Promise((resolve) => {
-    fetch(api)
-        .then((response) => response.json())
-        .then((data) => {
-            let output = [];
-            for(let i = 0; i < data.length; i++) {
-                tmp = {"label" : data[i].Name, "value" : i};
-                output.push(tmp);
-            }
-            ac.setData(output)
-            resolve(data);
-        })
-        .catch((error) => {
-            console.error(error);
-        });
-    })
-
-// Retrieving programming skill names
-let field2 = document.getElementById('programming-skill-names');
-let table = document.getElementById('programming-skill-table');
-let ac2 = new Autocomplete(field2, {
-    maximumItems: 50,
-    threshold: 1,
-    onSelectItem: ({label, value}) => {
-        console.log("user selected:", label, value);
-        addRow(table, field2.value)
-    }
-});
-
-let api2 = "http://localhost:3000/" + field2.id
-
-new Promise((resolve) => {
-    fetch(api2)
-        .then((response) => response.json())
-        .then((data) => {
-            let output = [];
-            for(let i = 0; i < data.length; i++) {
-                tmp = {"label" : data[i].Name, "value" : i};
-                output.push(tmp);
-            }
-            ac2.setData(output)
-            resolve(data);
-        })
-        .catch((error) => {
-            console.error(error);
-        });
-})
-
-// Retrieving programming skill names
-let field3 = document.getElementById('personal-skill-names');
-let table2 = document.getElementById('personal-skill-table');
-let ac3 = new Autocomplete(field3, {
-    maximumItems: 50,
-    threshold: 1,
-    onSelectItem: ({label, value}) => {
-        console.log("user selected:", label, value);
-        addRow(table2, field3.value)
-    }
-});
-
-let api3 = "http://localhost:3000/" + field3.id
-
-new Promise((resolve) => {
-    fetch(api3)
-        .then((response) => response.json())
-        .then((data) => {
-            let output = [];
-            for(let i = 0; i < data.length; i++) {
-                tmp = {"label" : data[i].Name, "value" : i};
-                output.push(tmp);
-            }
-            ac3.setData(output)
-            resolve(data);
-        })
-        .catch((error) => {
-            console.error(error);
-        });
-})
-
 function getAllData(input_id, table_id = null) {
     let field = document.getElementById(input_id);
     let ac = new Autocomplete(field, {
@@ -183,7 +181,9 @@ function getAllData(input_id, table_id = null) {
         onSelectItem: ({label, value}) => {
             console.log("user selected:", label, value);
             if (table_id){
-                addRow(document.getElementById(table_id), field.value)
+                addRow(document.getElementById(table_id), value, label)
+            } else {
+                field.setAttribute('data-id', value);
             }
         }
     });
@@ -196,7 +196,7 @@ function getAllData(input_id, table_id = null) {
             .then((data) => {
                 let output = [];
                 for(let i = 0; i < data.length; i++) {
-                    tmp = {"label" : data[i].Name, "value" : i};
+                    tmp = {"label" : data[i].Name, "value" : data[i].ID};
                     output.push(tmp);
                 }
                 ac.setData(output)
@@ -207,8 +207,10 @@ function getAllData(input_id, table_id = null) {
             });
     })
 }
-
+getAllData("companies")
 getAllData("publishers")
+getAllData("programming-skill-names", "programming-skill-table")
+getAllData("personal-skill-names", "personal-skill-table")
 
 //make datapicker only show past days
 var dtToday = new Date();
@@ -221,3 +223,19 @@ if(day < 10)
     day = '0' + day.toString();
 var maxDate = year + '-' + month + '-' + day;
 document.getElementById("publishedAt").setAttribute("max", maxDate);
+
+document.getElementById("finished").click 
+
+function finishedValueChanged(display_div_id)
+{   
+    var visualization = document.getElementById(display_div_id).style.display;
+    if(visualization === "block"){
+        visualization = "none"
+        document.getElementById("finishedAt").required = false;
+    } else {
+        visualization = "block"
+        document.getElementById("finishedAt").required = true;
+    }
+    document.getElementById(display_div_id).style.display = visualization;
+}
+

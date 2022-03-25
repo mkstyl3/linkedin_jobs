@@ -22,6 +22,14 @@ func InitDB() error {
 	return ConnectToDb()
 }
 
-func GetAll(slices interface{}) error {
-	return Db.Find(slices).Error
+func GetAll(models interface{}) error {
+	return Db.Find(models).Error
+}
+
+func GetByAttr(m interface{}, attrName string, attrValue string) error {
+	return Db.Where(attrName+" = ?", attrValue).First(m).Error
+}
+
+func Insert(model interface{}) error {
+	return Db.Create(model).Error
 }
