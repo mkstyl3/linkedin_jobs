@@ -10,121 +10,135 @@ function getTableValuesById(table_id){
 
 function getInputDataAttrFromElemId(elem_id){
     elem = document.getElementById(elem_id)
-    return [elem.value, elem.dataset.id]
+    return [elem.value, parseInt(elem.dataset.id)]
 }
 
 function getDropDownDataAttrFromElemId(elem_id){
     elem = document.getElementById(elem_id)
-    return [elem.value, elem.options[elem.selectedIndex].dataset.id]
+    return [elem.value, parseInt(elem.options[elem.selectedIndex].dataset.id)]
+}
+
+function showModal(modal_id, title, content){
+    var myModal = new bootstrap.Modal(document.getElementById(modal_id))
+    document.getElementById('modalTitle').innerHTML = title
+    document.getElementById('modalContent').innerHTML = content
+    myModal.show()      
+}
+
+function changeElementClass(element_id, old_class, new_class) {
+    elem = document.getElementById(element_id)
+    elem.classList.remove(old_class);
+    elem.classList.add(new_class)
 }
 
 function onAddJob() {
-    // programming_skills = getTableValuesById("programming-skill-table")
-    // // if (programming_skills.length === 0) {
-    // //     alert("Include a programming skill... it wouldn't be a legal job position or something like that, right? hehe");
-    // //     return
-    // // }
-    // title = document.getElementById("title").value
-    // description = document.getElementById("description").value
-    // link = document.getElementById("link").value
-    // publishedAt = new Date(document.getElementById("publishedAt").value).toISOString()
-    // finished = document.getElementById("finished").value
-    // let [company_name, company_id] = getInputDataAttrFromElemId("companies")
-    // let [publisher_name, publisher_id] = getInputDataAttrFromElemId("publishers")
-    // let [company_size, company_size_id] = getDropDownDataAttrFromElemId("company-sizes")
-    // let [english_lvl, english_lvl_id] = getDropDownDataAttrFromElemId("english-levels")
-    // let [work_schedule, work_schedule_id] = getDropDownDataAttrFromElemId("schedules")
-    // years_of_xp = document.getElementById("experience").value
-    // salary = document.getElementById("salary").value
-    // personal_skills = getTableValuesById("personal-skill-table")
-
-    // output = {
-    //     Title : title,
-    //     Description: description,
-    //     PublisherReferer : parseInt(publisher_id),
-    //     Publisher: {
-    //         ID: parseInt(publisher_id),
-    //         Name: publisher_name
-    //     },
-    //     Link: link,
-    //     CompanyReferer: parseInt(company_id),
-    //     Company: {
-    //         ID: parseInt(company_id),
-    //         Name: company_name,
-    //         SizeReferer: parseInt(company_size_id),
-    //         Size: {
-    //             ID: parseInt(company_size_id),
-    //             Name: company_size
-    //         }
-    //     },
-    //     PublishedAt: publishedAt,
-    //     EnglishLevelReferer : parseInt(english_lvl_id),
-    //     EnglishLevel: {
-    //         ID: parseInt(english_lvl_id),
-    //         Level: english_lvl
-    //     },
-    //     Experience: parseInt(years_of_xp),
-    //     SchedulesReferer: parseInt(work_schedule_id),
-    //     Schedules: {
-    //         ID: parseInt(work_schedule_id),
-    //         Name: work_schedule
-    //     },
-    //     ProgrammingSkills: programming_skills,
-    //     PersonalSkills: personal_skills,
-    //     Salary: parseInt(salary)
-    // };
+    programming_skills = getTableValuesById("programming-skill-table")
+    if (programming_skills.length === 0) {
+        showModal("add_job_modal", "But please...", "Include a programming skill... it wouldn't be a legal job position or something like that, right? hehe")
+        return
+    }
+    title = document.getElementById("title").value
+    description = document.getElementById("description").value
+    link = document.getElementById("link").value
+    publishedAt = new Date(document.getElementById("publishedAt").value).toISOString()
+    finished = document.getElementById("finished").value
+    let [company_name, company_id] = getInputDataAttrFromElemId("companies")
+    let [publisher_name, publisher_id] = getInputDataAttrFromElemId("publishers")
+    let [company_size, company_size_id] = getDropDownDataAttrFromElemId("company-sizes")
+    let [english_lvl, english_lvl_id] = getDropDownDataAttrFromElemId("english-levels")
+    let [work_schedule, work_schedule_id] = getDropDownDataAttrFromElemId("schedules")
+    years_of_xp = parseInt(document.getElementById("experience").value)
+    salary = parseInt(document.getElementById("salary").value)
+    personal_skills = getTableValuesById("personal-skill-table")
 
     output = {
-        Title : "title",
-        Description: "description",
-        PublisherReferer : 2,
+        Title : title,
+        Description: description,
+        PublisherReferer : publisher_id,
         Publisher: {
-            ID: 2,
-            Name: "InfoJobs"
+            ID: publisher_id,
+            Name: publisher_name
         },
-        Link: "link",
-        CompanyReferer: 1,
+        Link: link,
+        CompanyReferer: company_id,
         Company: {
-            ID: 1,
-            Name: "CloudBlue",
-            SizeReferer: 1,
+            ID: company_id,
+            Name: company_name,
+            SizeReferer: company_size_id,
             Size: {
-                ID: 1,
-                Name: "Micro"
+                ID: company_size_id,
+                Name: company_size
             }
         },
-        PublishedAt: "2022-03-02T00:00:00.000Z",
-        EnglishLevelReferer : 6,
+        PublishedAt: publishedAt,
+        EnglishLevelReferer : english_lvl_id,
         EnglishLevel: {
-            ID: 6,
-            Level: "Beginner"
+            ID: english_lvl_id,
+            Level: english_lvl
         },
-        Experience: 6,
-        SchedulesReferer: 1,
+        Experience: years_of_xp,
+        SchedulesReferer: work_schedule_id,
         Schedules: {
-            ID: 1,
-            Name: "Part-time"
+            ID: work_schedule_id,
+            Name: work_schedule
         },
-        ProgrammingSkills: [
-            {
-                ID: 11,
-                Name: "JAVADOC"
-            },
-            {
-                ID: 12,
-                Name: "NodeJS"
-            }],
-        PersonalSkills: [
-            {
-                ID: 1,
-                Name: "Responsibility"
-            },
-            {
-                ID: 2,
-                Name: "Attention to detail"
-            }],
-        Salary: 9000
+        ProgrammingSkills: programming_skills,
+        PersonalSkills: personal_skills,
+        Salary: salary
     };
+
+    //// Dummy data
+    // output = {
+    //     Title : "title",
+    //     Description: "description",
+    //     PublisherReferer : 2,
+    //     Publisher: {
+    //         ID: 2,
+    //         Name: "InfoJobs"
+    //     },
+    //     Link: "link",
+    //     CompanyReferer: 1,
+    //     Company: {
+    //         ID: 1,
+    //         Name: "CloudBlue",
+    //         SizeReferer: 1,
+    //         Size: {
+    //             ID: 1,
+    //             Name: "Micro"
+    //         }
+    //     },
+    //     PublishedAt: "2022-03-02T00:00:00.000Z",
+    //     EnglishLevelReferer : 6,
+    //     EnglishLevel: {
+    //         ID: 6,
+    //         Level: "Beginner"
+    //     },
+    //     Experience: 6,
+    //     SchedulesReferer: 1,
+    //     Schedules: {
+    //         ID: 1,
+    //         Name: "Part-time"
+    //     },
+    //     ProgrammingSkills: [
+    //         {
+    //             ID: 11,
+    //             Name: "JAVADOC"
+    //         },
+    //         {
+    //             ID: 12,
+    //             Name: "NodeJS"
+    //         }],
+    //     PersonalSkills: [
+    //         {
+    //             ID: 1,
+    //             Name: "Responsibility"
+    //         },
+    //         {
+    //             ID: 2,
+    //             Name: "Attention to detail"
+    //         }],
+    //     Salary: 9000
+    // };
 
     if (!document.getElementById("finished").checked) {
         output.FinishedAt = new Date(document.getElementById("finishedAt").value).toISOString()
@@ -138,8 +152,15 @@ function onAddJob() {
             'Content-Type': 'application/json'
           }
         })
-        .then(results => results.json())
-        .then(console.log);
+        .then(response => response.json())
+        .then(result => {
+            if (result.Status === 200){
+                changeElementClass("close_modal_bttn", "btn-secondary", "btn-primary")
+                showModal('add_job_modal', 'Congratulations', 'Job titled "' + title + '" was successfully inserted!')   
+            } else{
+                showModal('add_job_modal', 'Error Status: ' + result.Status, 'There was an error: ' + result.Msg)      
+            }
+        })
 }
 
 var tables = document.getElementsByTagName("table")
@@ -213,19 +234,20 @@ getAllData("programming-skill-names", "programming-skill-table")
 getAllData("personal-skill-names", "personal-skill-table")
 
 //make datapicker only show past days
-var dtToday = new Date();
-var month = dtToday.getMonth() + 1;
-var day = dtToday.getDate();
-var year = dtToday.getFullYear();
-if(month < 10)
-    month = '0' + month.toString();
-if(day < 10)
-    day = '0' + day.toString();
-var maxDate = year + '-' + month + '-' + day;
-document.getElementById("publishedAt").setAttribute("max", maxDate);
+function preventFutureDatesDatapicker(datapicker_id){
+    var dtToday = new Date();
+    var month = dtToday.getMonth() + 1;
+    var day = dtToday.getDate();
+    var year = dtToday.getFullYear();
+    if(month < 10)
+        month = '0' + month.toString();
+    if(day < 10)
+        day = '0' + day.toString();
+    var maxDate = year + '-' + month + '-' + day;
+    document.getElementById(datapicker_id).setAttribute("max", maxDate);
+}
 
-document.getElementById("finished").click 
-
+// Show finished datapicker based on checkbox result
 function finishedValueChanged(display_div_id)
 {   
     var visualization = document.getElementById(display_div_id).style.display;
@@ -238,4 +260,14 @@ function finishedValueChanged(display_div_id)
     }
     document.getElementById(display_div_id).style.display = visualization;
 }
+
+preventFutureDatesDatapicker("publishedAt")
+preventFutureDatesDatapicker("finishedAt")
+
+const element = document.querySelector('form');
+element.addEventListener('submit', event => {
+  event.preventDefault();
+  // actual logic, e.g. validate the form
+  console.log('Form submission cancelled.');
+});
 

@@ -4,7 +4,7 @@ import "time"
 
 type Job struct {
 	ID                  uint   `gorm:"primaryKey;autoIncrement:true"`
-	Title               string `gorm:"typevarchar(100)"`
+	Title               string `gorm:"typevarchar(100);unique"`
 	Description         string `gorm:"typevarchar(500)"`
 	PublisherReferer    uint
 	Publisher           Publisher `gorm:"foreignKey:PublisherReferer"`

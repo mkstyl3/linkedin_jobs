@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"encoding/json"
 	"errors"
 	"html/template"
 	"net/http"
@@ -41,27 +42,38 @@ func addJobsGetHandler(w http.ResponseWriter, r *http.Request) {
 	utils.ExecuteTemplate(w, "add-jobs.html", parcel)
 }
 
+type Parcel struct {
+	Msg    string
+	Status int
+	Err    error
+}
+
+func sendJsonResponse(w http.ResponseWriter, parcel Parcel) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(parcel.Status)
+	parcel_json, err := json.Marshal(parcel)
+	if err != nil {
+		panic(err)
+	}
+	w.Write([]byte(parcel_json))
+}
+
 func addJobPostHandler(w http.ResponseWriter, r *http.Request) {
 	var job models.Job
 	job.CreatedAt = time.Now()
 	job.UpdatedAt = time.Now()
 
-	// body, err := ioutil.ReadAll(r.Body)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// log.Info().Msg(string(body))
-
 	err := helpers.DecodeJSONBody(w, r, &job)
 	if err != nil {
 		var mr *helpers.MalformedRequest
 		if errors.As(err, &mr) {
-			log.Error().Err(err).Msg("")
+			log.Error().Msg(mr.Error())
+			sendJsonResponse(w, Parcel{Msg: mr.Error(), Status: mr.Status})
 			// http.Error(w, mr.Msg, mr.Status)
 		} else {
 			log.Error().Err(err).Msg("")
 			// http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-
+			sendJsonResponse(w, Parcel{Msg: "Internal Server Error", Status: http.StatusInternalServerError, Err: err})
 		}
 		return
 	}
@@ -116,12 +128,11 @@ func addJobPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := models.Insert(&job); err != nil {
-		log.Err(err)
+		log.Fatal().Msg("Job was not inserted")
+		sendJsonResponse(w, Parcel{Status: http.StatusInternalServerError, Err: err})
 	} else {
-		log.Info().Msg("Job was successfully inserted")
+		successful_msg := "Job was successfully inserted"
+		log.Info().Msg(successful_msg)
+		sendJsonResponse(w, Parcel{Msg: successful_msg, Status: http.StatusOK, Err: err})
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"result":"job position added, thanks"}`))
 }

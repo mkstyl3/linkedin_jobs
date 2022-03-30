@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	ErrUserNotFound = errors.New("user not found")
-	ErrInvalidLogin = errors.New("invalid login")
+	ErrUserNotFound = errors.New("User not found")
+	ErrInvalidLogin = errors.New("Invalid login")
 )
 
 type User struct {

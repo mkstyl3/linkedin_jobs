@@ -49,11 +49,13 @@ func NewRouter() *mux.Router {
 	r.HandleFunc("/companies", companyNamesGetHandler).Methods("GET")
 	r.HandleFunc("/login", loginGetHandler).Methods("GET")
 	r.HandleFunc("/login", loginPostHandler).Methods("POST")
+	r.HandleFunc("/register", registerGetHandler).Methods("GET")
+	// r.HandleFunc("/register", registerPostHandler).Methods("POST")
 	r.HandleFunc("/personal-skill-names", personalSkillNamesGetHandler).Methods("GET")
 	r.HandleFunc("/programming-skill-names", programmingSkillNamesGetHandler).Methods("GET")
 	r.HandleFunc("/publishers", publishersGetHandler).Methods("GET")
-	fs := http.FileServer(http.Dir("./dist/"))
-	r.PathPrefix("/dist/").Handler(http.StripPrefix("/dist/", fs))
+	r.PathPrefix("/dist/").Handler(http.StripPrefix("/dist/", http.FileServer(http.Dir("./dist/"))))
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
 	return r
 }
 
@@ -167,17 +169,29 @@ func loginGetHandler(w http.ResponseWriter, r *http.Request) {
 	utils.ExecuteTemplate(w, "login.html", nil)
 }
 
+func registerGetHandler(w http.ResponseWriter, r *http.Request) {
+	utils.ExecuteTemplate(w, "register.html", nil)
+}
+
+type UILoginError struct {
+	Msg  string
+	Show bool
+}
+
 func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	username := r.PostForm.Get("username")
 	password := r.PostForm.Get("password")
 	err := models.AuthenticateUser(username, password)
 	if err != nil {
+		uiLoginErr := UILoginError{Show: true}
 		switch err {
 		case models.ErrUserNotFound:
-			utils.ExecuteTemplate(w, "login.html", "unknown user")
+			uiLoginErr.Msg = "Unknown user!"
+			utils.ExecuteTemplate(w, "login.html", uiLoginErr)
 		case models.ErrInvalidLogin:
-			utils.ExecuteTemplate(w, "login.html", "invalid login")
+			uiLoginErr.Msg = "Invalid login!"
+			utils.ExecuteTemplate(w, "login.html", uiLoginErr)
 		default:
 			w.WriteHeader((http.StatusInternalServerError))
 			w.Write([]byte("Internal Server Error"))
